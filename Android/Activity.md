@@ -1,3 +1,4 @@
+
 #### Android控件架构
 - Android中，控件大致分为两类，即ViewGroup控件和View控件。其中，ViewGroup控件作为父控件可以包含多个View控件。
 - 控件树
@@ -11,21 +12,48 @@
 	- 用户可以通过requestWindowFeature(Window.FEATURE_NO_TITLE)来设置全屏显示。但该方法必须在setContentView()前调用才能生效。
 	- 在程序中，当setContentView()调用后，ActivityManagerService会回调onResume()方法完成界面的绘制。
 
-#### Activity生命周期
-**1. 典型情况下的生命周期**
 
- - 对于一个Activity,第一次启动，回调如下： onCreate -> onStart -> onResume
- - 当用户打开新的Activity或者切换到桌面时，回调如下：onPause -> onStop。若新Activity采用了透明主题，则不会回调onStop。
- - 当用户再次回到原Activity时，回调如下：onRestart -> onStart -> onResume。
- - 当用户按返回键时，回调如下：onPause -> onStop -> onDestroy。
- - onStart和onStop是从Activity是否可见这个角度来回调的，而onResume和onPause是从Activity是否位于前台这个角度来回调的。
- - 当前Activity A关闭，Activity B开启时，回调如下：onPause -> onCreate -> onStart -> onResume -> onStop。（故不能在onPause中做重量级的操作，因为必须onPause执行完成后新的Activity才能Resume）
-   
-**2. 异常情况下的生命周期**
+#### Activity进出场动画
+**anim/main_out.xml**
 
-- 资源相关的系统配置发生改变导致Activity被杀死并重新创建（eg. 旋转屏幕）
-	- Activity在异常情况下终止时，系统会调用onSaveInstanceState来保存当前的Activity状态。该方法在onStop前调用，与onPause方法调用时机无法确定。
-	- 当Activity被重新创建后，系统会调用onRestoreInstanceState，并且将Activity销毁时onSaveInstanceState保存的Bundle对象作为参数传递给onRestoreInstanceState和onCreate方法。该方法的调用时间在onStart之后。
-	- onSaveInstanceState和onRestoreInstanceState方法，系统只在Activity异常终止时才会调用，即系统只有在Activity被销毁并且有机会重新显示的情况下才会去调用。
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="2000">
 
-- 资源内存不足导致低优先级的Activity被杀死
+    <translate android:fromXDelta="-100%p"
+               android:toXDelta="0" />
+
+    <rotate android:fromDegrees="0"
+            android:toDegrees="-180"
+            android:pivotX="50%"
+            android:pivotY="50%" />
+</set>
+```
+**MainActivity.java**
+
+```java
+public void go1(View view) {
+    Intent intent = new Intent(this,Main2Activity.class);
+    startActivity(intent);
+    // 设置当前activity进出场动画 必须要在跳转页面之后。 第一个参数为进场动画，第二个参数为出场动画
+    this.overridePendingTransition(R.anim.main2_in,R.anim.main_out);
+}
+
+/**
+ * 定制返回动画
+ */
+@Override
+public void onBackPressed() {
+    super.onBackPressed();
+    this.overridePendingTransition(R.anim.back_in,R.anim.back_out);
+}
+```
+
+#### Activity退出登录
+```java
+Intent intent = new Intent(MineSettingActivity.this, LoginActivity.class);
+intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+startActivity(intent);
+```
+

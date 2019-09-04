@@ -11,7 +11,7 @@ Android系统中的MeasureSpec类用来测量View，MeasureSpec是一个32位的
 - 系统最终是通过setMeasuredDimension(int measuredWidth,int measuredHeight)方法宽高设置到View。
 - 自定义控件View测量模板
 ```java
-@Override
+	@Override
     protected void onMeasure(int widthMeasureSpec,int heightMeasureSpec) {
  setMeasuredDimension(measureWidth(widthMeasureSpec),measureHeight(heightMeasureSpec));
     }
@@ -32,3 +32,13 @@ Android系统中的MeasureSpec类用来测量View，MeasureSpec是一个32位的
         return result;
     }
 ```
+
+#### View的绘制
+- 一般情况下，我们可以通过重写View类中的onDraw()方法来绘图，在onDraw()方法中需要一个参数，即Canvas对象。
+- 在其他情况中，通常需要用代码去创建一个Canvas对象。
+	- 传入的bitmap对象与创建的Canvas画布紧紧联系在一起，该过程称为**装载画布**。
+	- 该bitmap对象用来储存所有绘制在Canvas上的像素信息。我们调用的所有Canvas.drawXXX方法都是作用在这个bitmap上。
+```java
+Canvas canvas = new Canvas(bitmap);
+```
+
