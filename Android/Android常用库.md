@@ -6,13 +6,13 @@
 implementation 'com.jakewharton:butterknife:8.8.1'
 annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 ```
-- 初始化
+- 初始化【该方法必须在`setContent()`之后才能调用】
 ```java
 ButterKnife.bind(this);
 ```
 
-
 **2. Design Support**
+
 ```
 implementation 'com.android.support:design:28.0.0'
 implementation 'de.hdodenhof:circleimageview:2.1.0'
@@ -29,11 +29,29 @@ implementation 'com.android.support:cardview-v7:28.0.0'
 ```
 
 **5. Glide**
-```
+
+```xml
 implementation 'com.github.bumptech.glide:glide:4.8.0'
+annotationProcessor 'com.github.bumptech.glide:compiler:4.8.0'
 ```
 
+- 在项目`build.gradle`中添加如下：
+
+```
+allprojects {
+    repositories {
+        mavenCentral()
+        maven { url 'https://maven.google.com' }
+        google()
+        jcenter()
+    }
+}
+```
+
+- 在`AndroidManifest.xml`中添加`android:usesCleartextTraffic="true"`
+
 **6. okhttp**
+
 ```
 implementation 'com.squareup.okhttp3:okhttp:3.10.0'
 ```
