@@ -56,7 +56,36 @@ allprojects {
 implementation 'com.squareup.okhttp3:okhttp:3.10.0'
 ```
 
+- 在res下新增目录：`xml/network_security_config.xml`
+
+  ```xml
+  <?xml version="1.0" encoding="utf-8"?>
+  <network-security-config>
+       <base-config cleartextTrafficPermitted="true" />
+  </network-security-config>
+  ```
+
+- App的`AndroidManifest.xml`
+
+  ```xml
+  <application
+      ...
+  	android:networkSecurityConfig="@xml/network_security_config"
+      ...
+  />
+  ```
+
+- 加入
+
+  ```gr
+  compileOptions{
+      sourceCompatibility JavaVersion.VERSION_1_8
+      targetCompatibility JavaVersion.VERSION_1_8
+  }
+  ```
+
 **7. LitePal**
+
 - 依赖
 ```
 implementation 'org.litepal.android:java:3.0.0'

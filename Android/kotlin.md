@@ -6,7 +6,7 @@
 
 ```kotlin
 fun sum(a:Int, b:Int) = a + b
-// public方法则必须明确写出返回值类型
+// public方法则必须明确写出返回值类型（貌似不需要）
 public fun sum(a:Int, b:Int):Int = a + b
 ```
 
@@ -68,7 +68,7 @@ for(i in 1..4 step 2) print(i)	// 输出“13”
 for(i in 4 downTo 1 step 2) print(i)	// 输出“42”
 
 // 使用until函数排除结束元素
-for(i in i until 10) print(i)	// 输出i in [1, 10)
+for(i in 1 until 10) print(i)	// 输出i in [1, 10)
 ```
 
 # Kotlin基本数据类型
@@ -129,3 +129,145 @@ fun main(args: Array<String>) {
 
 - Kotlin支持`'''`括起来的字符串，支持多行字符串
 - String可通过`trimMargin()`方法来删除多余的空白。默认`|`作为边界前缀，但我们可以选择其他字符并作为参数传入。例如:`trimMargin(">")`
+
+
+## 量
+
+- 变量：`var`
+
+- 不可变量：`val`
+  - 变量和不可变量在字节码文件中是相同的，不可变量并不是`final`类型。
+  - 不可变量不能有`set`方法，但在类内部是可以改变的
+  - 效率高于java：如果`val`量长期不会被用到的时候，`gc`是会回收的。
+
+- 常量：`const var`
+  - 相当于`public static final`
+  - 只有全局保证一定不会变化的量才会使用`const var`
+
+```kotlin
+const val a:String = "456789"
+
+fun main(args: Array<String>) {
+
+//    val hello = Hello()
+//    println(hello.string)
+//    hello.string = "Want"
+//    println(hello.string)
+
+    val people = People(1985)
+    println(people.age)
+    people.thenextYear()
+    println(people.age)
+}
+
+class People(var birth:Int) {
+    val age:Int
+        get() {
+            return Calendar.getInstance()
+                    .get(Calendar.YEAR) - birth
+        }
+
+    fun thenextYear() {
+        birth = birth - 2
+    }
+}
+
+class Hello {
+    // String?与String为两个类型，String?为可空类型
+    var string:String? = null
+        get() {
+            return field + "hello"
+        }
+        set(value) {
+            field = value + "set"
+        }
+
+    val string2:String = "789"
+        get() {
+            return field
+        }
+}
+```
+
+## 空安全实现
+
+- 在编译期通过静态代码检查
+
+- 引用对象前做判空操作
+  - 局部变量会有上下文空预判（java没有）
+
+## 单例模式
+
+- 饿汉式
+
+  ```kotlin
+  object KSingleton
+  ```
+
+- 懒汉式
+
+  ```kotlin
+  class KSingleton private constructor() {
+      // 伴生对象，没有静态内部类
+      companion object {
+          private var instance:KSingleton? = null
+              get() {
+                  if (field == null) {
+                      field = KSingleton()
+                  }
+                  return field
+              }
+  
+          fun get():KSingleton {
+              return instance!!
+          }
+      }
+  }
+  ```
+
+- 线程安全的懒汉式
+
+  ```kotlin
+  class KSingleton private constructor() {
+      companion object {
+          private var instance:KSingleton? = null
+              get() {
+                  if (field == null) {
+                      field = KSingleton()
+                  }
+                  return field
+              }
+  
+          @Synchronized
+          fun get():KSingleton {
+              return instance!!
+          }
+      }
+  }
+  ```
+
+- 双重锁
+
+  ```kotlin
+  class KSingleton private constructor() {
+      companion object {
+          val instance:KSingleton by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
+              KSingleton()
+          }
+      }
+  }
+  ```
+
+- 静态内部类
+
+  ```kotlin
+  class KSingleton private constructor() {
+      companion object {
+          val instance = SingtonHolder.holder
+      }
+      
+      private object SingtonHolder {
+          val holder = KSingleton
+      }
+  }
+  ```
